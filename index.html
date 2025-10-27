@@ -1,1 +1,855 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MÁS SABOR DEL TIEMPO - Portal Interno</title>
+    <!-- Carga de Tailwind CSS para utilidades rápidas y responsive design -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Carga de fuentes (Montserrat para títulos, Roboto para cuerpo) -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        /* 1. PALETA DE COLORES Y TIPOGRAFÍA (CSS Variables) */
+        :root {
+            --color-base: #F5F0E6; /* Beige suave / Crema desaturado */
+            --color-text: #4B382A; /* Marrón oscuro / Sepia profundo */
+            --color-accent-ocre: #C69C6D; /* Marrón claro / Ocre (Detalles/Bordes) */
+            --color-accent-green: #758E67; /* Verde oliva (Botones principales) */
+            --color-accent-red: #C25B45; /* Rojo ladrillo suave / Naranja quemado (Alertas/Secundario) */
+            
+            /* Colores de Horarios */
+            --color-morning: #F2E1B3; /* Mañana (Amarillo) */
+            --color-evening: var(--color-accent-red); /* Tarde (Naranja quemado - usar variable existente) */
+            --color-night: #6B8EAD; /* Noche (Azul suave) */
+            --color-off: white; /* Descanso */
+
+            /* Tipografía */
+            --font-title: 'Montserrat', 'Poppins', sans-serif;
+            --font-body: 'Roboto', 'Open Sans', sans-serif;
+        }
+
+        /* Estilos base */
+        body {
+            font-family: var(--font-body);
+            color: var(--color-text);
+            background-color: var(--color-base);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.3s ease;
+        }
+
+        h1, h2 {
+            font-family: var(--font-title);
+            color: var(--color-text);
+            font-weight: 700;
+        }
+
+        /* 2. ESTILOS DE COMPONENTES GLOBALES Y ANIMACIONES */
+
+        .app-container {
+            background-color: var(--color-base);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            max-width: 1200px;
+            width: 95%;
+            min-height: 80vh;
+            margin: 20px auto;
+            border-radius: 12px;
+            padding: 0; /* padding se maneja dentro de los módulos */
+        }
+
+        /* Estilos para cuadros centrales con sombra suave */
+        .card-panel {
+            background-color: #ffffff;
+            border: 1px solid var(--color-accent-ocre);
+            box-shadow: 0 4px 12px rgba(75, 56, 42, 0.1);
+            transition: box-shadow 0.3s ease, transform 0.3s ease;
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+        
+        /* Estilos de botones (Verde Oliva y Naranja Quemado) */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            font-weight: 700;
+            border-radius: 6px;
+            text-align: center;
+            transition: background-color 0.3s ease, transform 0.1s ease, box-shadow 0.3s ease;
+            color: white; /* Botones con texto blanco */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary {
+            background-color: var(--color-accent-green);
+        }
+
+        .btn-primary:hover {
+            background-color: #617a58; /* Tono más oscuro de verde oliva */
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-secondary {
+            background-color: var(--color-accent-red);
+        }
+
+        .btn-secondary:hover {
+            background-color: #a44c38; /* Tono más oscuro de naranja quemado */
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Estilos de tabla (Mis Horarios) */
+        .turno-manana { background-color: var(--color-morning); }
+        .turno-tarde { background-color: var(--color-evening); color: white; }
+        .turno-noche { background-color: var(--color-night); color: white; }
+        .turno-descanso { background-color: var(--color-off); }
+        .horario-table th { background-color: var(--color-accent-ocre); color: white; }
+        .horario-table td { transition: background-color 0.2s ease; }
+        .horario-table tr:nth-child(even) { background-color: rgba(200, 150, 100, 0.05); } /* Alternancia de color suave */
+        
+        /* 3. ESTILOS DE NAVEGACIÓN (Header/Dashboard) */
+        .app-header {
+            background-color: white;
+            padding: 1rem 1.5rem;
+            border-bottom: 3px solid var(--color-accent-ocre);
+            border-radius: 12px 12px 0 0;
+            display: flex;
+            justify-content: flex-start; /* Se ajustó para mantener el logo a la izquierda sin navegación */
+            align-items: center;
+        }
+
+        .logo-text {
+            cursor: pointer;
+            font-family: var(--font-title);
+            color: var(--color-text);
+            transition: opacity 0.3s ease, color 0.3s ease;
+        }
+        .logo-text:hover { opacity: 0.9; }
+        
+        /* 4. ESTILOS DEL MODAL (Reemplazo de alert/confirm) */
+        .custom-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: none; /* Oculto por defecto */
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background-color: white;
+            border-radius: 8px;
+            padding: 2rem;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+    </style>
+    <!-- Placeholder para configuración de Firebase (MANDATORIO) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        setLogLevel('Debug');
+        
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        let app, db, auth;
+        let userId = null;
+
+        window.firebaseReady = false; // Flag global para indicar que Firebase está listo
+
+        async function initFirebase() {
+            try {
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        window.app.state.userId = userId;
+                        console.log("Firebase Auth Ready. User ID:", userId);
+                    } else {
+                        userId = crypto.randomUUID(); // Fallback anónimo
+                        window.app.state.userId = userId;
+                        console.log("Firebase Auth Ready. Signed in anonymously. User ID:", userId);
+                    }
+                    window.firebaseReady = true;
+                    // Aquí podrías cargar datos iniciales del usuario
+                });
+
+                // Exportar referencias globales para uso en scripts (aunque evitamos usar Firebase en el módulo renderizado por simplicidad)
+                window.db = db;
+                window.auth = auth;
+                window.appId = appId;
+
+            } catch (error) {
+                console.error("Error initializing Firebase:", error);
+            }
+        }
+        
+        initFirebase();
+    </script>
+</head>
+<body>
+
+    <!-- Contenedor Principal de la Aplicación -->
+    <div id="app-container" class="app-container">
+        
+        <!-- Contenido del Header, visible en todos los módulos internos -->
+        <header id="app-header" class="app-header hidden">
+            <!-- INICIO: Código del Logo en Encabezado -->
+            <div class="flex items-center space-x-2 cursor-pointer group" onclick="window.app.navigate('dashboard')">
+                <!-- CAMBIO A SALERO AQUÍ -->
+                <span class="text-3xl text-[var(--color-accent-red)] transition-transform duration-300 group-hover:scale-110">🧂</span>
+                <span class="logo-text text-2xl group-hover:text-[var(--color-accent-green)] transition-colors duration-300">MÁS SABOR DEL TIEMPO</span>
+            </div>
+            <!-- FIN: Código del Logo en Encabezado -->
+        </header>
+
+        <!-- Contenedor de Módulos (SPA Content) -->
+        <main id="module-content" class="p-8 md:p-12">
+            <!-- El contenido de cada módulo se inyectará aquí -->
+        </main>
+
+    </div>
+    
+    <!-- Modal Personalizado (Para reemplazar alert/confirm) -->
+    <div id="custom-modal" class="custom-modal">
+        <div class="modal-content">
+            <h3 id="modal-title" class="text-xl mb-3 font-bold">Título</h3>
+            <p id="modal-message" class="mb-6"></p>
+            <button class="btn btn-primary w-full" onclick="document.getElementById('custom-modal').style.display = 'none'">Aceptar</button>
+        </div>
+    </div>
+
+
+    <script>
+        // Lógica de Navegación y Módulos (JavaScript)
+
+        const appContainer = document.getElementById('app-container');
+        const moduleContent = document.getElementById('module-content');
+        const appHeader = document.getElementById('app-header');
+
+        // URL de PDF de ejemplo para simular la visualización
+        // Se usa un PDF de ejemplo conocido y funcional para la simulación
+        const MOCK_PDF_URL = 'https://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf';
+
+        // Estado Global Simulado
+        window.app = {
+            state: {
+                currentModule: 'welcome',
+                isLoggedIn: false,
+                userId: null,
+            },
+            user: {
+                // Se restablece el nombre del usuario a Alejandro Chica.
+                name: "Alejandro Chica", 
+                document: "1036000000",
+                role: "Ingeniero de Software Senior", 
+                email: "alejandro.chica@example.com",
+                address: "Calle 123, Ciudad del Sol, País",
+                cv_uploaded: true, // Simular que el CV ya está subido para poder verlo
+            }
+        };
+
+        const modal = (title, message) => {
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-message').textContent = message;
+            document.getElementById('custom-modal').style.display = 'flex';
+        };
+
+        const moduleConfigs = [
+            { id: 'dashboard', name: 'Dashboard' },
+            { id: 'profile', name: 'Mi Perfil' },
+            { id: 'schedule', name: 'Mis Horarios' },
+            { id: 'payroll', name: 'Mi Nómina' },
+            { id: 'database', name: 'Gestión DB' },
+            { id: 'feedback', name: 'Opinión' },
+        ];
+
+        // --- Funciones de Renderizado de Módulos ---
+
+        function renderHeader(show) {
+            // Esta función ahora solo muestra u oculta el header con el logo, sin renderizar la navegación.
+            if (show) {
+                appHeader.classList.remove('hidden');
+            } else {
+                appHeader.classList.add('hidden');
+            }
+        }
+        
+        // 1. PANTALLA INICIAL / BIENVENIDA
+        function renderWelcome() {
+            renderHeader(false);
+            moduleContent.innerHTML = `
+                <div class="flex flex-col items-center justify-center min-h-[70vh] text-center">
+                    <!-- INICIO: Logo del módulo Welcome/Inicio -->
+                    <div class="flex items-center justify-center space-x-3 mb-10">
+                        <!-- CAMBIO A SALERO AQUÍ -->
+                        <span class="text-5xl text-[var(--color-accent-red)]">🧂</span>
+                        <h1 class="text-4xl md:text-6xl font-extrabold text-[var(--color-text)]">
+                            MÁS SABOR DEL TIEMPO
+                        </h1>
+                    </div>
+                    <!-- FIN: Logo del módulo Welcome/Inicio -->
+                    <div class="max-w-xl mx-auto space-y-4 text-left p-6 card-panel">
+                        <h2 class="text-2xl font-bold border-b pb-2 border-[var(--color-accent-ocre)]">
+                            ¿Por qué este proyecto?
+                        </h2>
+                        <p>Digitalizar la gestión de personal, eliminando la dependencia de papel y manuales físicos.</p>
+                        
+                        <h2 class="text-2xl font-bold border-b pb-2 border-[var(--color-accent-ocre)]">
+                            ¿Por qué lo escogimos?
+                        </h2>
+                        <p>Muchas empresas aún utilizan Excel o archivos físicos, lo que genera pérdida de tiempo y errores en la gestión de RR.HH.</p>
+                        
+                        <h2 class="text-2xl font-bold border-b pb-2 border-[var(--color-accent-ocre)]">
+                            ¿Qué queremos lograr?
+                        </h2>
+                        <p>Crear un portal web unificado, fácil de usar, rápido y seguro para toda la plantilla.</p>
+                    </div>
+                    
+                    <button class="btn btn-primary mt-10 text-xl w-64" onclick="window.app.navigate('login')">
+                        Ir al Portal
+                    </button>
+                </div>
+            `;
+        }
+
+        // 2. INICIO DE SESIÓN
+        function renderLogin() {
+            renderHeader(false);
+            moduleContent.innerHTML = `
+                <div class="flex flex-col items-center justify-center min-h-[70vh]">
+                    <div class="w-full max-w-sm p-8 card-panel text-center">
+                        <!-- INICIO: Logo del módulo Login -->
+                        <div class="flex items-center justify-center space-x-3 mb-6">
+                            <!-- CAMBIO A SALERO AQUÍ -->
+                            <span class="text-3xl text-[var(--color-accent-red)]">🧂</span>
+                            <span class="logo-text text-3xl">MÁS SABOR DEL TIEMPO</span>
+                        </div>
+                        <!-- FIN: Logo del módulo Login -->
+                        <h2 class="text-xl font-bold mb-6">Inicio de Sesión</h2>
+                        
+                        <form id="login-form" onsubmit="event.preventDefault(); window.app.handleLogin();" class="space-y-4">
+                            <div>
+                                <input type="email" id="login-email" placeholder="Correo electrónico" required 
+                                    class="w-full p-3 border border-gray-300 rounded-md focus:border-[var(--color-accent-green)] focus:ring focus:ring-[var(--color-accent-green)]/30 text-[var(--color-text)]"
+                                    oninput="window.app.validateLoginField(this)">
+                                <p id="email-error" class="text-xs text-[var(--color-accent-red)] h-4 mt-1 text-left"></p>
+                            </div>
+                            <div>
+                                <input type="password" id="login-password" placeholder="Contraseña" required 
+                                    class="w-full p-3 border border-gray-300 rounded-md focus:border-[var(--color-accent-green)] focus:ring-[var(--color-accent-green)]/30 text-[var(--color-text)]">
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary w-full">
+                                Ingresar
+                            </button>
+                        </form>
+                        
+                        <a href="#" class="inline-block mt-4 text-[var(--color-accent-red)] hover:underline" onclick="modal('Recuperar Contraseña', 'Por favor, contacte al administrador de sistemas para la recuperación de su contraseña. No hay auto-servicio disponible.')">
+                            Recuperar contraseña
+                        </a>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 3. DASHBOARD
+        function renderDashboard() {
+            renderHeader(true);
+            moduleContent.innerHTML = `
+                <h1 class="text-3xl mb-8">Bienvenido(a), ${window.app.user.name.split(' ')[0]}</h1>
+                <p class="mb-8">Aquí tienes acceso rápido a tus módulos principales.</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    ${moduleConfigs.filter(m => m.id !== 'dashboard').map(m => `
+                        <div class="card-panel text-center hover:shadow-xl hover:scale-[1.02] transform transition-all cursor-pointer" onclick="window.app.navigate('${m.id}')">
+                            <div class="text-5xl mb-4">
+                                ${m.id === 'profile' ? '👤' : m.id === 'schedule' ? '🗓️' : m.id === 'payroll' ? '💰' : m.id === 'database' ? '🗄️' : '💡'}
+                            </div>
+                            <h2 class="text-xl font-bold">${m.name}</h2>
+                            <p class="text-sm text-gray-500 mt-1">Accede a toda tu información personal y operativa.</p>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        // 4. MI PERFIL
+        function renderProfile() {
+            renderHeader(true);
+            const user = window.app.user;
+            moduleContent.innerHTML = `
+                <h1 class="text-3xl mb-8">Mi Perfil</h1>
+                <div class="card-panel max-w-3xl mx-auto">
+                    <form id="profile-form" onsubmit="event.preventDefault(); window.app.handleProfileUpdate();" class="space-y-6">
+                        
+                        <!-- Datos no editables -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Nombre Completo</label>
+                            <input type="text" value="${user.name}" disabled class="w-full p-3 bg-gray-100 border border-gray-300 rounded-md">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Número de Documento</label>
+                            <input type="text" value="${user.document}" disabled class="w-full p-3 bg-gray-100 border border-gray-300 rounded-md">
+                        </div>
+                        
+                        <!-- Datos editables -->
+                        <div>
+                            <label for="profile-role" class="block text-sm font-medium text-gray-700">Cargo / Función</label>
+                            <input type="text" id="profile-role" value="${user.role}" required 
+                                class="w-full p-3 border border-gray-300 rounded-md focus:border-[var(--color-accent-green)] focus:ring-[var(--color-accent-green)]/30">
+                        </div>
+                        <div>
+                            <label for="profile-email" class="block text-sm font-medium text-gray-700">Correo Personal</label>
+                            <input type="email" id="profile-email" value="${user.email}" required 
+                                class="w-full p-3 border border-gray-300 rounded-md focus:border-[var(--color-accent-green)] focus:ring-[var(--color-accent-green)]/30">
+                        </div>
+                        <div>
+                            <label for="profile-address" class="block text-sm font-medium text-gray-700">Dirección</label>
+                            <input type="text" id="profile-address" value="${user.address}" required 
+                                class="w-full p-3 border border-gray-300 rounded-md focus:border-[var(--color-accent-green)] focus:ring-[var(--color-accent-green)]/30">
+                        </div>
+
+                        <!-- Botón Obligatorio: Subir Hoja de Vida -->
+                        <div class="pt-4 border-t border-dashed border-gray-300">
+                            <label class="block text-sm font-bold text-[var(--color-accent-green)] mb-2">Hoja de Vida (PDF)</label>
+                            <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 items-center">
+                                <input type="file" id="profile-cv-upload" accept=".pdf" class="hidden" onchange="window.app.handleCVUpload(this.files[0])">
+                                <button type="button" class="btn btn-primary w-full sm:w-auto" onclick="document.getElementById('profile-cv-upload').click()">
+                                    Subir Hoja de Vida (PDF)
+                                </button>
+                                ${user.cv_uploaded ? `
+                                    <button type="button" class="btn btn-secondary w-full sm:w-auto" onclick="window.app.navigate('pdf-viewer', { type: 'Hoja de Vida de ${user.name}', url: MOCK_PDF_URL })">
+                                        Ver Hoja de Vida
+                                    </button>
+                                    <span id="cv-status" class="text-sm font-medium text-green-600">
+                                        ✅ Archivo subido
+                                    </span>
+                                ` : `
+                                    <span id="cv-status" class="text-sm font-medium text-gray-500">
+                                        ❌ Pendiente de subida
+                                    </span>
+                                `}
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-secondary w-full">
+                            Actualizar Datos de Contacto
+                        </button>
+                    </form>
+                </div>
+            `;
+        }
+
+        // 5. MIS HORARIOS
+        function renderSchedule() {
+            renderHeader(true);
+            
+            // Datos de turnos simulados
+            const schedule = [
+                { week: 1, mon: 'Mañana', tue: 'Tarde', wed: 'Noche', thu: 'Descanso', fri: 'Mañana', sat: 'Tarde', sun: 'Descanso' },
+                { week: 2, mon: 'Noche', tue: 'Descanso', wed: 'Mañana', thu: 'Tarde', fri: 'Noche', sat: 'Descanso', sun: 'Mañana' },
+                { week: 3, mon: 'Descanso', tue: 'Mañana', wed: 'Tarde', thu: 'Noche', fri: 'Descanso', sat: 'Mañana', sun: 'Tarde' },
+                { week: 4, mon: 'Tarde', tue: 'Noche', wed: 'Descanso', thu: 'Mañana', fri: 'Tarde', sat: 'Noche', sun: 'Descanso' },
+            ];
+
+            const getTurnoClass = (turno) => {
+                if (turno === 'Mañana') return 'turno-manana';
+                if (turno === 'Tarde') return 'turno-tarde';
+                if (turno === 'Noche') return 'turno-noche';
+                return 'turno-descanso';
+            };
+
+            moduleContent.innerHTML = `
+                <h1 class="text-3xl mb-8">Mis Horarios</h1>
+                <div class="space-y-10">
+                    <div class="card-panel">
+                        <p class="text-lg font-bold mb-4 border-b border-[var(--color-accent-ocre)] pb-2">
+                            <span class="text-[var(--color-accent-red)]">Este mes te tocó en la</span> Sede Sur
+                        </p>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="horario-table w-full text-sm border border-collapse">
+                                <thead>
+                                    <tr>
+                                        <th class="p-3 border">Semana</th>
+                                        <th class="p-3 border">Lunes</th>
+                                        <th class="p-3 border">Martes</th>
+                                        <th class="p-3 border">Miércoles</th>
+                                        <th class="p-3 border">Jueves</th>
+                                        <th class="p-3 border">Viernes</th>
+                                        <th class="p-3 border">Sábado</th>
+                                        <th class="p-3 border">Domingo</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${schedule.map(s => `
+                                        <tr>
+                                            <td class="p-3 border font-semibold">${s.week}</td>
+                                            <td class="p-3 border ${getTurnoClass(s.mon)}">${s.mon}</td>
+                                            <td class="p-3 border ${getTurnoClass(s.tue)}">${s.tue}</td>
+                                            <td class="p-3 border ${getTurnoClass(s.wed)}">${s.wed}</td>
+                                            <td class="p-3 border ${getTurnoClass(s.thu)}">${s.thu}</td>
+                                            <td class="p-3 border ${getTurnoClass(s.fri)}">${s.fri}</td>
+                                            <td class="p-3 border ${getTurnoClass(s.sat)}">${s.sat}</td>
+                                            <td class="p-3 border ${getTurnoClass(s.sun)}">${s.sun}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <p class="mt-4 text-sm font-medium text-gray-600">
+                            Próximo mes: Sede Norte (Turnos mixtos).
+                        </p>
+                    </div>
+
+                    <!-- Solicitud de Cambio de Turno -->
+                    <div class="card-panel">
+                        <h2 class="text-xl font-bold mb-4">Solicitar Cambio de Turno</h2>
+                        <form onsubmit="event.preventDefault(); window.app.handleSubmitChange();" class="space-y-4">
+                            <div>
+                                <label for="change-reason" class="block text-sm font-medium text-gray-700">Motivo del Cambio</label>
+                                <textarea id="change-reason" rows="3" required class="w-full p-3 border border-gray-300 rounded-md focus:border-[var(--color-accent-green)] focus:ring-[var(--color-accent-green)]/30"></textarea>
+                            </div>
+                            <div>
+                                <label for="change-partner" class="block text-sm font-medium text-gray-700">¿Con quién cambias? (Nombre y Documento)</label>
+                                <input type="text" id="change-partner" required class="w-full p-3 border border-gray-300 rounded-md focus:border-[var(--color-accent-green)] focus:ring-[var(--color-accent-green)]/30">
+                            </div>
+                            <button type="submit" class="btn btn-secondary w-full">
+                                Enviar Solicitud de Cambio
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <p class="mt-10 text-center italic text-lg font-medium text-[var(--color-accent-ocre)]">
+                    "La constancia también tiene horario. ¡Sigue brillando en cada turno!"
+                </p>
+            `;
+        }
+
+        // 6. MI NÓMINA
+        function renderPayroll() {
+            renderHeader(true);
+            const payments = [
+                { date: '25/09/2025', total: '2,500,000 COP', bonus: '250,000 COP' },
+                { date: '25/08/2025', total: '2,400,000 COP', bonus: '0 COP' },
+                { date: '25/07/2025', total: '2,500,000 COP', bonus: '100,000 COP' },
+                { date: '25/06/2025', total: '2,400,000 COP', bonus: '0 COP' },
+            ];
+
+            moduleContent.innerHTML = `
+                <h1 class="text-3xl mb-8">Mi Nómina</h1>
+                <div class="space-y-8">
+                    
+                    <!-- Último Pago Destacado -->
+                    <div class="card-panel p-6 bg-white border-[var(--color-accent-green)] border-2">
+                        <h2 class="text-xl font-bold mb-4">Último Pago Destacado</h2>
+                        <div class="grid grid-cols-3 gap-4 text-center border-b pb-4">
+                            <div><span class="block text-xs text-gray-500">Fecha</span><span class="text-lg font-semibold">${payments[0].date}</span></div>
+                            <div><span class="block text-xs text-gray-500">Valor Total</span><span class="text-lg font-semibold text-[var(--color-accent-green)]">${payments[0].total}</span></div>
+                            <div><span class="block text-xs text-gray-500">Bonificación</span><span class="text-lg font-semibold text-[var(--color-accent-red)]">${payments[0].bonus}</span></div>
+                        </div>
+                        <button class="btn btn-primary w-full mt-4" onclick="window.app.navigate('pdf-viewer', { type: 'Nómina de ${payments[0].date}', url: MOCK_PDF_URL })">
+                            Ver / Descargar PDF (Último Pago)
+                        </button>
+                    </div>
+
+                    <!-- Pagos Anteriores -->
+                    <div class="card-panel">
+                        <h2 class="text-xl font-bold mb-4">Pagos Anteriores</h2>
+                        <ul id="payroll-list" class="space-y-3">
+                            ${payments.map((p, index) => `
+                                <li class="flex justify-between items-center p-3 rounded-md ${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}">
+                                    <span class="font-medium">Pago del ${p.date}</span>
+                                    <div class="flex space-x-4 items-center">
+                                        <span class="text-sm text-gray-600">${p.total}</span>
+                                        <button class="btn btn-secondary py-1 px-3 text-sm" onclick="window.app.navigate('pdf-viewer', { type: 'Nómina de ${p.date}', url: MOCK_PDF_URL })">
+                                            Ver PDF
+                                        </button>
+                                    </div>
+                                </li>
+                            `).join('')}
+                        </ul>
+                        <button class="btn btn-secondary opacity-60 w-full mt-6" onclick="modal('Cargar más', 'La lista de pagos ha sido simulada y está completa. En un entorno real se cargarían más datos.')">
+                            Cargar más
+                        </button>
+                    </div>
+
+                </div>
+            `;
+        }
+
+        // 7. GESTIÓN DE BASE DE DATOS
+        function renderDatabase() {
+            renderHeader(true);
+            moduleContent.innerHTML = `
+                <h1 class="text-3xl mb-8">Gestión de Base de Datos</h1>
+                <div class="card-panel max-w-xl mx-auto text-center space-y-6">
+                    <p class="text-lg font-medium border-b border-[var(--color-accent-ocre)] pb-3">
+                        Consulta la estructura completa de la base de datos del proyecto
+                    </p>
+
+                    <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                        <input type="file" id="db-upload" accept=".pdf" class="hidden" onchange="window.app.handleDBUpload(this.files[0])">
+                        
+                        <!-- Botón 1: Subir PDF (Obligatorio) -->
+                        <button class="btn btn-primary w-full" onclick="document.getElementById('db-upload').click()">
+                            Subir PDF (Estructura)
+                        </button>
+                        
+                        <!-- Botón 2: Ver PDF -->
+                        <button class="btn btn-secondary w-full" onclick="window.app.navigate('pdf-viewer', { type: 'Estructura de la Base de Datos', url: MOCK_PDF_URL })">
+                            Ver PDF
+                        </button>
+                    </div>
+                    
+                    <p id="db-upload-status" class="text-sm text-gray-500 mt-4 h-6">
+                        Esperando la subida del archivo de la estructura...
+                    </p>
+                </div>
+            `;
+        }
+
+        // 8. OPINIÓN Y EQUIPO
+        function renderFeedback() {
+            renderHeader(true);
+            const team = [
+                { name: "Daniela Vivas", role: "Líder de Proyecto", bio: "Experta en gestión de equipos ágiles y calidad de software." },
+                { name: "Miguel Bohórquez", role: "Arquitecto de Soluciones", bio: "Responsable del diseño técnico y la infraestructura de la base de datos." },
+                { name: "Yinei Bannesa Usuga", role: "Diseñadora UX/UI", bio: "Creadora de la paleta de colores y la experiencia de usuario de este portal." },
+                { name: "Alejandro Chica", role: "Desarrollador Full Stack", bio: "Implementador de la lógica de negocio y la integración de módulos." }, // Nombre actualizado aquí
+            ];
+
+            moduleContent.innerHTML = `
+                <h1 class="text-3xl mb-8">Opinión y Equipo de Trabajo</h1>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+                    
+                    <!-- Columna QR y Feedback -->
+                    <div class="card-panel p-6 shadow-lg flex flex-col items-center justify-center">
+                        <h2 class="text-xl font-bold mb-4 border-b border-[var(--color-accent-ocre)] pb-2 w-full text-center">
+                            Queremos conocer tu opinión
+                        </h2>
+                        <p class="text-center mb-6">Escanea el código QR para acceder al formulario de satisfacción y sugerencias:</p>
+                        
+                        <!-- Código QR (Placeholder SVG) -->
+                        <div class="relative p-3 bg-white shadow-xl rounded-md border-2 border-[var(--color-accent-red)]">
+                            <svg width="150" height="150" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="2" y="2" width="20" height="20" rx="3" fill="#C25B45" opacity="0.1"/>
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M4 4H8V8H4V4ZM10 4H12V6H10V4ZM14 4H20V6H14V4ZM4 10H6V12H4V10ZM18 10H20V12H18V10ZM4 14H6V16H4V14ZM10 14H12V16H10V14ZM18 14H20V20V22H14V16H18V14ZM10 18H12V20H10V18ZM4 18H8V22H4V18ZM20 18H22V20H20V18Z" fill="var(--color-accent-red)"/>
+                            </svg>
+                            <p class="absolute bottom-1 right-1 text-xs text-[var(--color-accent-red)] opacity-70">CÓDIGO QR</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Columna Equipo de Trabajo -->
+                    <div>
+                        <h2 class="text-xl font-bold mb-4 border-b border-[var(--color-accent-ocre)] pb-2">
+                            Conoce al Equipo
+                        </h2>
+                        <div class="space-y-4">
+                            ${team.map(member => `
+                                <div class="team-card card-panel bg-white border-[var(--color-accent-ocre)] border-2 cursor-pointer relative"
+                                    onmouseover="this.querySelector('.mini-bio').classList.remove('opacity-0', 'invisible')"
+                                    onmouseout="this.querySelector('.mini-bio').classList.add('opacity-0', 'invisible')">
+                                    <h3 class="font-bold text-lg">${member.name}</h3>
+                                    <p class="text-sm text-[var(--color-accent-green)]">${member.role}</p>
+                                    
+                                    <div class="mini-bio absolute inset-0 bg-white/95 backdrop-blur-sm flex items-center justify-center p-4 rounded-md transition-opacity duration-300 opacity-0 invisible">
+                                        <p class="italic text-center text-sm">${member.bio}</p>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 9. VISOR DE PDF (NUEVO MÓDULO)
+        function renderPDFViewer(documentType, pdfUrl) {
+            renderHeader(true);
+            moduleContent.innerHTML = `
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 border-b pb-4">
+                    <h1 class="text-2xl md:text-3xl mb-4 md:mb-0">Visualizando: <span class="text-[var(--color-accent-red)]">${documentType}</span></h1>
+                    <button class="btn btn-secondary w-full md:w-auto" onclick="window.app.navigate('dashboard')">
+                        Volver al Dashboard
+                    </button>
+                </div>
+                
+                <div class="card-panel p-0 h-[70vh] flex flex-col overflow-hidden">
+                    <div class="p-4 bg-gray-100 border-b border-gray-200">
+                        <p class="text-sm text-gray-600">
+                            (Simulación: En una aplicación real, este iframe cargaría el documento desde un servicio de almacenamiento seguro.)
+                        </p>
+                    </div>
+                    <iframe 
+                        src="${pdfUrl}" 
+                        class="w-full flex-grow border-0" 
+                        title="Visor de Documento PDF"
+                        onerror="document.getElementById('pdf-error').classList.remove('hidden');"
+                    ></iframe>
+                    <div id="pdf-error" class="hidden p-4 bg-red-100 text-[var(--color-accent-red)] text-center font-bold">
+                        No se pudo cargar el PDF. Verifica la URL o el archivo.
+                    </div>
+                </div>
+            `;
+        }
+        
+        // --- Lógica de Manejo de Eventos (Simulada) ---
+
+        window.app.navigate = (moduleName, params = {}) => {
+            // Manejo de la redirección y control de acceso
+            if (moduleName !== 'welcome' && moduleName !== 'login' && !window.app.state.isLoggedIn) {
+                // Si intenta ir a un módulo interno sin loguearse (simulado)
+                moduleName = 'login';
+            }
+            
+            window.app.state.currentModule = moduleName;
+            
+            switch (moduleName) {
+                case 'welcome':
+                    renderWelcome();
+                    break;
+                case 'login':
+                    renderLogin();
+                    break;
+                case 'dashboard':
+                    renderDashboard();
+                    break;
+                case 'profile':
+                    renderProfile();
+                    break;
+                case 'schedule':
+                    renderSchedule();
+                    break;
+                case 'payroll':
+                    renderPayroll();
+                    break;
+                case 'database':
+                    renderDatabase();
+                    break;
+                case 'feedback':
+                    renderFeedback();
+                    break;
+                case 'pdf-viewer':
+                    renderPDFViewer(params.type, params.url);
+                    break;
+                default:
+                    renderDashboard();
+            }
+        };
+
+        window.app.handleLogin = () => {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            // Validación simple (simulada)
+            if (!email.includes('@') || password.length < 6) {
+                modal('Error de Ingreso', 'Correo o contraseña incorrectos. Por favor, verifica tus credenciales.');
+                return;
+            }
+
+            // Simulación de ingreso exitoso
+            window.app.state.isLoggedIn = true;
+            modal('Ingreso Exitoso', `¡Bienvenido ${window.app.user.name.split(' ')[0]}! Has ingresado al Portal Interno.`);
+            window.app.navigate('dashboard');
+        };
+
+        window.app.validateLoginField = (input) => {
+             const errorElement = document.getElementById('email-error');
+             if (input.type === 'email') {
+                if (!input.value.includes('@') || !input.value.includes('.')) {
+                    errorElement.textContent = 'Formato de correo inválido.';
+                } else {
+                    errorElement.textContent = '';
+                }
+             }
+        }
+        
+        window.app.handleProfileUpdate = () => {
+            // En un entorno real, aquí se usaría Firestore para actualizar el documento del usuario.
+            const role = document.getElementById('profile-role').value;
+            const email = document.getElementById('profile-email').value;
+            const address = document.getElementById('profile-address').value;
+            
+            window.app.user.role = role;
+            window.app.user.email = email;
+            window.app.user.address = address;
+
+            modal('Datos Actualizados', 'Tu Cargo, Correo Personal y Dirección han sido actualizados con éxito.');
+        };
+
+        window.app.handleCVUpload = (file) => {
+            if (file && file.type === 'application/pdf') {
+                window.app.user.cv_uploaded = true;
+                modal('Subida Exitosa', `Hoja de vida (${file.name}) subida correctamente. Gracias por mantener tu perfil actualizado.`);
+                // For a quick visual update without re-rendering the whole module:
+                window.app.navigate('profile'); 
+            } else {
+                modal('Error de Subida', 'Solo se permiten archivos en formato PDF.');
+            }
+        };
+        
+        window.app.handleSubmitChange = () => {
+            const reason = document.getElementById('change-reason').value;
+            const partner = document.getElementById('change-partner').value;
+            
+            if (reason.trim() === "" || partner.trim() === "") {
+                modal('Error de Solicitud', 'Por favor, completa tanto el motivo como el nombre de la persona con quien cambias.');
+                return;
+            }
+
+            modal('Solicitud Enviada', `Tu solicitud de cambio de turno con ${partner} ha sido enviada para aprobación.`);
+            document.getElementById('change-reason').value = '';
+            document.getElementById('change-partner').value = '';
+        };
+
+        window.app.handleDBUpload = (file) => {
+            const statusElement = document.getElementById('db-upload-status');
+            if (file && file.type === 'application/pdf' && file.size < 5 * 1024 * 1024) { // Menos de 5MB
+                statusElement.textContent = `✅ Estructura (${file.name}) subida y validada.`;
+                statusElement.classList.remove('text-gray-500');
+                statusElement.classList.remove('text-[var(--color-accent-red)]');
+                statusElement.classList.add('text-green-600');
+                modal('Subida DB', 'El documento de la estructura de la base de datos ha sido cargado correctamente.');
+            } else {
+                statusElement.textContent = '❌ Error: El archivo debe ser PDF y menor a 5MB.';
+                statusElement.classList.remove('text-gray-500');
+                statusElement.classList.add('text-[var(--color-accent-red)]');
+                modal('Error de Validación', 'El archivo no cumple con los requisitos (Debe ser PDF y menor a 5MB).');
+            }
+        };
+
+
+        // --- Inicialización de la Aplicación ---
+        window.onload = () => {
+            // Inicia en la pantalla de bienvenida
+            window.app.navigate('welcome');
+        };
+    </script>
+</body>
+</html>
 
